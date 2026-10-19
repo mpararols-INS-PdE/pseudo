@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pensament computacional i pseudocodi | 1r DAM (Teoria)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6FC; --surface:#FFFFFF; --ink:#12183A; --muted:#566089; --line:#D6DCEF; --tint:#E7ECFA;
+  --code-bg:#0E1433; --code-ink:#E6EBFF; --flow:#566089;
+  --p1:#2F58F0; --p2:#08897A; --p3:#7B3FE0; --p4:#D98500;
+  --ok:#08897A; --bad:#D6336C; --on-accent:#FFFFFF;
+  --kw:#FF8FB1; --str:#8EE3B0; --num:#FFCB6B; --cmt:#8C97CC; --op:#7FB2FF; --logic:#C7A4FF; --ty:#7FDBFF;
+  --disp:'Bricolage Grotesque','Trebuchet MS','Segoe UI',system-ui,sans-serif;
+  --body:'Public Sans',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1130; --surface:#151B47; --ink:#EAEEFF; --muted:#A0AAD6; --line:#2B3468; --tint:#1B2255;
+    --code-bg:#070A20; --flow:#A0AAD6;
+    --p1:#7F9BFF; --p2:#3CD6BE; --p3:#B78CFF; --p4:#FFB938; --ok:#3CD6BE; --bad:#FF7AA6; --on-accent:#0C1130;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1130; --surface:#151B47; --ink:#EAEEFF; --muted:#A0AAD6; --line:#2B3468; --tint:#1B2255;
+  --code-bg:#070A20; --flow:#A0AAD6;
+  --p1:#7F9BFF; --p2:#3CD6BE; --p3:#B78CFF; --p4:#FFB938; --ok:#3CD6BE; --bad:#FF7AA6; --on-accent:#0C1130;
+}
+*{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;overflow:hidden;-webkit-text-size-adjust:100%}
+
+.deck{position:relative;height:100%;font-size:clamp(15px,1.25vw + .45vh,23px);
+  background-color:var(--bg);
+  background-image:radial-gradient(color-mix(in srgb,var(--ink) 12%,transparent) 1px,transparent 1.3px);
+  background-size:26px 26px}
+.deck[data-part="1"]{--acc:var(--p1)} .deck[data-part="2"]{--acc:var(--p2)}
+.deck[data-part="3"]{--acc:var(--p3)} .deck[data-part="4"]{--acc:var(--p4)}
+.deck[data-part="0"]{--acc:var(--p1)}
+
+/* ---------- slides ---------- */
+.slide{--accent:var(--p1);position:absolute;inset:0;display:none;overflow-y:auto;overflow-x:hidden;
+  border-left:clamp(6px,.8vw,12px) solid var(--accent)}
+.slide[data-part="2"]{--accent:var(--p2)} .slide[data-part="3"]{--accent:var(--p3)}
+.slide[data-part="4"]{--accent:var(--p4);--on-accent:#12183A}
+:root[data-theme="dark"] .slide[data-part="4"]{--on-accent:#0C1130}
+.slide.active{display:block;animation:fadein .22s ease-out}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.inner{max-width:1260px;margin:0 auto;padding:clamp(18px,3.6vh,48px) clamp(18px,4.5vw,72px) 96px}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:.6em 1.5em;flex-wrap:wrap;margin-bottom:.9em}
+.crumb{display:inline-flex;align-items:center;gap:.5em;font-size:.72em;color:var(--muted);padding-top:.7em;white-space:nowrap}
+.crumb i{width:.8em;height:.8em;border-radius:50%;background:var(--accent);display:inline-block}
+h1,h2,h3{font-family:var(--disp);margin:0;letter-spacing:-.02em;line-height:1.08}
+h2{font-size:2.05em;font-weight:700;flex:1 1 18ch}
+h3{font-size:1.18em;font-weight:700;margin-bottom:.3em}
+p{margin:.5em 0;max-width:66ch}
+.lead{font-size:1.2em}
+.muted{color:var(--muted)}
+.small{font-size:.86em}
+strong{font-weight:700}
+code{font-family:var(--mono);font-size:.88em;background:var(--tint);padding:.08em .38em;border-radius:5px}
+
+.grid{display:grid;gap:clamp(12px,1.6vw,24px)}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr))}
+.center{align-items:center}
+.mt{margin-top:1em}
+
+.tile{background:color-mix(in srgb,var(--accent) 11%,var(--surface));border-radius:20px 20px 20px 4px;padding:1em 1.2em}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1em 1.2em}
+.callout{border-left:5px solid var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface));padding:.8em 1.15em;border-radius:0 14px 14px 0;margin:.9em 0}
+.callout p:first-child{margin-top:0} .callout p:last-child{margin-bottom:0}
+.ok{--accent:var(--ok)} .bad{--accent:var(--bad)}
+.big-def{font-family:var(--disp);font-size:1.6em;line-height:1.25;font-weight:500;letter-spacing:-.01em;max-width:30em;
+  border-left:6px solid var(--accent);padding:.2em 0 .2em .8em;margin:.3em 0 .9em}
+
+ul.chk,ul.plain{list-style:none;padding:0;margin:.6em 0}
+ul.chk li{position:relative;padding:.35em 0 .35em 2em}
+ul.chk li::before{content:"✓";position:absolute;left:0;top:.42em;width:1.4em;height:1.4em;border-radius:50%;
+  background:var(--accent);color:var(--on-accent);font-size:.8em;display:grid;place-items:center;font-weight:700}
+ul.plain li{padding:.28em 0}
+ul.dot{padding-left:1.2em;margin:.5em 0} ul.dot li{margin:.25em 0}
+ol.st{list-style:none;counter-reset:s;padding:0;margin:.6em 0}
+ol.st>li{counter-increment:s;position:relative;padding:.3em 0 .3em 2.3em}
+ol.st>li::before{content:counter(s);position:absolute;left:0;top:.3em;width:1.6em;height:1.6em;border-radius:50%;
+  background:var(--accent);color:var(--on-accent);font-weight:700;font-size:.85em;display:grid;place-items:center}
+
+table.tbl{border-collapse:collapse;width:100%;font-size:.95em}
+.tbl th,.tbl td{padding:.5em .75em;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{background:var(--tint);font-family:var(--disp);font-weight:700}
+.tbl td code{white-space:nowrap}
+.tblwrap{overflow-x:auto}
+
+/* ---------- code ---------- */
+pre.code{margin:.6em 0;background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.84em;line-height:1.5;
+  padding:.9em 1.1em;border-radius:12px;overflow-x:auto;white-space:pre;tab-size:2;border:1px solid color-mix(in srgb,var(--code-ink) 10%,transparent)}
+pre.code[data-label]::before{content:attr(data-label);display:block;font-family:var(--body);font-size:.78em;color:var(--cmt);margin-bottom:.5em}
+pre.code .l{display:block;min-height:1.5em}
+pre.code.bad{border-color:var(--bad);border-left-width:5px}
+pre.code.good{border-color:var(--ok);border-left-width:5px}
+.t-c{color:var(--cmt);font-style:italic}.t-s{color:var(--str)}.t-k{color:var(--kw);font-weight:600}
+.t-l{color:var(--logic);font-weight:600}.t-o{color:var(--op)}.t-n{color:var(--num)}.t-t{color:var(--ty)}
+pre.reveal .l{opacity:0;animation:show .01s forwards;animation-delay:calc(var(--n) * .5s + .5s)}
+@keyframes show{to{opacity:1}}
+
+/* ---------- cover / divider ---------- */
+.cover .inner{min-height:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:2em 3em;align-content:center;align-items:center}
+.cover h1{font-size:clamp(2.4em,5.2vw,4.6em);font-weight:800;line-height:1;letter-spacing:-.035em}
+.cover .sub{font-size:1.3em;margin:.9em 0;max-width:24em;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:.5em;margin-top:1.2em}
+.chip{border:1.5px solid var(--ink);border-radius:999px;padding:.25em .9em;font-size:.85em;font-weight:600}
+.divider{border-left:none}
+.divider[data-part="1"]{background:#2F58F0;color:#fff}
+.divider[data-part="2"]{background:#08897A;color:#fff}
+.divider[data-part="3"]{background:#6D32D6;color:#fff}
+.divider[data-part="4"]{background:#F2A20C;color:#12183A}
+.divider .inner{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:.4em}
+.divider .pt{font-size:1.2em;font-weight:600;opacity:.9}
+.divider h2{font-size:clamp(2.6em,7vw,6em);font-weight:800;letter-spacing:-.035em;flex:none}
+.divider p{font-size:1.4em;max-width:26em}
+.dots{display:flex;gap:.6em;margin-top:1.6em}
+.dots i{width:.9em;height:.9em;border-radius:50%;border:2px solid currentColor;display:block}
+.dots i.on{background:currentColor}
+
+/* ---------- special ---------- */
+.route{display:grid;grid-template-columns:auto 1fr;gap:1em;align-items:center;padding:.85em 1.2em;border-radius:14px;
+  background:color-mix(in srgb,var(--c) 11%,var(--surface));border-left:8px solid var(--c);margin:.6em 0}
+.route .num{width:2.1em;height:2.1em;border-radius:50%;background:var(--c);color:var(--on-accent);display:grid;place-items:center;font-family:var(--disp);font-weight:800;font-size:1.1em}
+.route h3{margin:0}.route p{margin:.1em 0 0}
+.pill{border-top:6px solid var(--c);background:var(--surface);border-radius:4px 4px 16px 16px;padding:1em 1.1em;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pill svg{width:2.6em;height:2.6em;stroke:var(--c);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pill .q{font-family:var(--disp);font-weight:700;font-size:1.1em;margin:.3em 0}
+.tree{display:grid;gap:.9em}
+.tree .root{background:var(--accent);color:var(--on-accent);border-radius:12px;padding:.7em 1.1em;font-family:var(--disp);font-weight:700;font-size:1.15em}
+.tree .kids{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:.8em;position:relative}
+.tree .kid{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:4px 4px 12px 12px;padding:.7em .9em}
+.tree .kid b{font-family:var(--disp)} .tree .kid ul{margin:.4em 0 0;padding-left:1.1em;font-size:.9em}
+.flow6{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:.9em;counter-reset:f}
+.flow6 .st6{counter-increment:f;position:relative;background:color-mix(in srgb,var(--accent) 11%,var(--surface));padding:1em 1em 1em;border-radius:14px;border-top:5px solid var(--accent)}
+.flow6 .st6::before{content:counter(f);position:absolute;top:-1.05em;left:.8em;width:1.9em;height:1.9em;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:800;font-family:var(--disp)}
+.flow6 .st6 h3{margin-top:.5em}.flow6 .st6 p{font-size:.9em;margin:.2em 0}
+.back{margin-top:1.2em;border:2px dashed var(--accent);border-radius:12px;padding:.6em 1em;text-align:center;font-weight:600}
+.fc{width:100%;height:auto;max-height:66vh}
+.fc .n{fill:var(--surface);stroke:var(--muted);stroke-width:1.5}
+.fc .t{fill:var(--tint)}
+.fc text{font-family:var(--mono);font-size:11.5px;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.fc path{stroke:var(--flow);stroke-width:1.5;fill:none}
+.fc .lb{font-family:var(--body);font-weight:700;font-size:12px;fill:var(--muted);text-anchor:start}
+.sym{width:5.2em;height:2.5em}
+.fcs{fill:var(--tint);stroke:var(--muted);stroke-width:2}
+.metro{width:100%;height:auto;max-height:48vh}
+.keepign{display:grid;grid-template-columns:1fr 1fr;gap:.8em}
+.keepign ul{margin:.3em 0;padding-left:1.1em}
+
+details.sol{margin-top:.45em}
+details.sol>summary{cursor:pointer;display:inline-flex;align-items:center;gap:.5em;padding:.22em .85em;border:1.5px solid var(--accent);border-radius:999px;
+  background:var(--surface);font-weight:600;font-size:.88em;list-style:none;user-select:none}
+details.sol>summary::-webkit-details-marker{display:none}
+details.sol>summary::before{content:"▸";transition:transform .15s}
+details.sol[open]>summary::before{transform:rotate(90deg)}
+details.sol>.body{margin-top:.5em}
+.ex{display:grid;grid-template-columns:auto 1fr;gap:.2em 1em;padding:.75em 0;border-top:1px solid var(--line)}
+.ex>b{background:var(--accent);color:var(--on-accent);border-radius:8px;height:2.1em;min-width:2.6em;padding:0 .5em;display:grid;place-items:center;font-family:var(--disp)}
+.ex p{margin:.1em 0}
+.time{display:inline-block;background:var(--tint);border-radius:999px;padding:.15em .8em;font-size:.85em;font-weight:600}
+
+/* trace widget */
+.trace{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:1.2em;align-items:start}
+.tcode{background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:.84em;border-radius:12px;padding:.7em 0;overflow-x:auto}
+.tcode .ln{padding:.08em 1em .08em .9em;border-left:5px solid transparent;white-space:pre;min-height:1.6em}
+.tcode .ln.on{background:color-mix(in srgb,var(--accent) 30%,transparent);border-left-color:var(--accent)}
+.vars td:last-child{font-family:var(--mono);font-weight:700}
+.vars tr.chg td:last-child{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.tout{margin:.7em 0;font-family:var(--mono)}
+.tbtns{display:flex;flex-wrap:wrap;gap:.5em;margin-top:.6em}
+
+/* nav */
+.nav{position:absolute;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;gap:.5em;padding:.5em .9em;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--line);font-size:.8em}
+.bar{position:absolute;left:0;top:-3px;height:3px;background:var(--acc);width:0;transition:width .25s}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:.4em .85em;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn:focus-visible,summary:focus-visible,.toc button:focus-visible{outline:3px solid var(--acc,var(--p1));outline-offset:2px}
+.nav .count{font-variant-numeric:tabular-nums;min-width:5.5em;text-align:center;color:var(--muted)}
+.nav .ttl{flex:1;min-width:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 .6em}
+@media (max-width:640px){.nav .ttl{display:none}.nav .sp{flex:1}.btn .lab{display:none}}
+.toc{position:absolute;inset:0;z-index:20;display:none;overflow:auto;background:color-mix(in srgb,var(--bg) 96%,transparent);padding:clamp(16px,3vw,40px) clamp(16px,4vw,64px) 90px}
+.toc.open{display:block}
+.toc h2{font-size:1.7em;margin-bottom:.6em}
+.toc .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1.4em}
+.toc h3{display:flex;align-items:center;gap:.5em;font-size:1em}
+.toc h3 i{width:.8em;height:.8em;border-radius:50%;display:inline-block}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{all:unset;box-sizing:border-box;display:flex;gap:.6em;width:100%;padding:.28em .4em;border-radius:6px;cursor:pointer;font-size:.9em}
+.toc button:hover{background:var(--tint)}
+.toc button span:first-child{color:var(--muted);min-width:2em;font-variant-numeric:tabular-nums}
+
+@media (prefers-reduced-motion:reduce){
+  .slide.active{animation:none}.bar{transition:none}
+  pre.reveal .l{opacity:1;animation:none}
+}
+@media print{
+  html,body,.deck{height:auto;overflow:visible}
+  .slide{position:relative!important;display:block!important;height:auto;overflow:visible;break-after:page;page-break-after:always;animation:none}
+  .nav,.toc{display:none!important}
+  pre.reveal .l{opacity:1;animation:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--flow);stroke:none"/></marker>
+    <symbol id="s-term" viewBox="0 0 90 44"><rect class="fcs" x="4" y="7" width="82" height="30" rx="15"/></symbol>
+    <symbol id="s-proc" viewBox="0 0 90 44"><rect class="fcs" x="4" y="7" width="82" height="30" rx="3"/></symbol>
+    <symbol id="s-dec" viewBox="0 0 90 44"><polygon class="fcs" points="45,3 86,22 45,41 4,22"/></symbol>
+    <symbol id="s-io" viewBox="0 0 90 44"><polygon class="fcs" points="16,7 86,7 74,37 4,37"/></symbol>
+  </defs>
+</svg>
+
+<div class="deck" data-part="0">
+
+<!-- 1 · PORTADA -->
+<section class="slide cover" data-part="1"><div class="inner">
+  <div>
+    <h1>Pensament computacional i pseudocodi</h1>
+    <p class="sub">Aprendre a pensar com un programador abans d’escriure la primera línia de codi.</p>
+    <div class="chips"><span class="chip">1r DAM</span><span class="chip">Programació</span><span class="chip">Sessió d’inici de curs</span></div>
+  </div>
+  <pre class="code reveal" data-label="El primer algorisme del curs">
+    Algorisme abansDeProgramar
+    Var
+      problema, solucio: text
+    Inici
+      llegir(problema)
+      // Entendre què ens demanen
+      // Dividir-lo en parts més petites
+      // Dissenyar els passos
+      solucio ← pensar(problema)
+      escriure(solucio)
+      // I només llavors, programar
+    Fi
+  </pre>
+</div></section>
+
+<!-- 2 · RUTA -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>La ruta d’avui: tres blocs</h2></div>
+  <div class="route" style="--c:var(--p1)"><span class="num">1</span><div><h3>Pensar abans de programar</h3><p>Què és el pensament computacional, per què importa i quins són els seus quatre pilars.</p></div></div>
+  <div class="route" style="--c:var(--p2)"><span class="num">2</span><div><h3>Aplicar-ho</h3><p>Dos exemples resolts pas a pas i dos exercicis per fer en parelles.</p></div></div>
+  <div class="route" style="--c:var(--p3)"><span class="num">3</span><div><h3>Pseudocodi</h3><p>El llenguatge per escriure algorismes: variables, decisions i repeticions, amb molts exemples.</p></div></div>
+  <p class="muted small">Tecles útils durant la sessió: <code>←</code> <code>→</code> per canviar de diapositiva, <code>O</code> per obrir l’índex, <code>T</code> per canviar el tema, <code>F</code> per pantalla completa.</p>
+</div></section>
+
+<!-- 3 · OBJECTIUS -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Al final de la sessió sabreu…</h2></div>
+  <ul class="chk lead">
+    <li>Explicar amb paraules pròpies què és el pensament computacional i per què és important.</li>
+    <li>Aplicar els quatre pilars (descomposició, patrons, abstracció i algorismes) a un problema quotidià.</li>
+    <li>Escriure algorismes en pseudocodi amb les tres estructures bàsiques: seqüència, decisió i repetició.</li>
+    <li>Passar d’un diagrama de flux a pseudocodi, i a l’inrevés.</li>
+    <li>Comprovar que un algorisme funciona seguint-lo a mà amb una taula de traça.</li>
+  </ul>
+  <div class="callout"><p><strong>Idea que ens acompanyarà tot el curs:</strong> primer es pensa, després s’escriu i, per acabar, es prova.</p></div>
+</div></section>
+
+<!-- 4 · D'ON PARTIM -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>D’on partim: el que ja heu vist</h2></div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Diagrames de flux</h3>
+      <p class="small muted">Dibuixen l’algorisme amb quatre símbols bàsics.</p>
+      <table class="tbl"><tbody>
+        <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-term"/></svg></td><td>Inici i final</td></tr>
+        <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-io"/></svg></td><td>Entrada o sortida de dades</td></tr>
+        <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-proc"/></svg></td><td>Procés (un càlcul, una assignació)</td></tr>
+        <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-dec"/></svg></td><td>Decisió (sí o no)</td></tr>
+      </tbody></table>
+    </div>
+    <div class="panel">
+      <h3>Seqüenciació d’instruccions</h3>
+      <p class="small muted">L’ordre forma part de la solució. Mateixes accions, resultat diferent:</p>
+      <div class="grid g2">
+        <div class="callout ok"><p><strong>Ordre correcte</strong></p><ol class="dot"><li>Posar aigua</li><li>Posar cafè</li><li>Encendre</li><li>Esperar</li><li>Servir</li></ol></div>
+        <div class="callout bad"><p><strong>Ordre incorrecte</strong></p><ol class="dot"><li>Servir</li><li>Encendre</li><li>Posar cafè</li><li>Posar aigua</li><li>Esperar</li></ol></div>
+      </div>
+    </div>
+  </div>
+  <div class="callout"><p>Avui afegim el que falta: <strong>pensar el problema abans de dibuixar-lo o escriure’l</strong>, i un llenguatge nou, el <strong>pseudocodi</strong>, per expressar la solució amb precisió.</p></div>
+</div></section>
+
+<!-- 5 · ACTIVITAT ROBOT -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Activitat d’inici: el robot de l’entrepà</h2></div>
+  <div class="grid g2">
+    <div>
+      <p class="lead">Un robot molt literal només fa exactament el que li diem. <strong>Escriviu les instruccions perquè prepari un entrepà de formatge.</strong></p>
+      <ul class="dot">
+        <li>Treballeu en parelles.</li>
+        <li>Una ordre per línia, numerades.</li>
+        <li>No podeu suposar res: el robot no sap què és una barra de pa.</li>
+      </ul>
+      <p><span class="time">5 minuts</span></p>
+      <p class="muted small">Després, una parella llegeix les instruccions en veu alta i la resta fa de robot.</p>
+    </div>
+    <div class="panel">
+      <h3>Què acostuma a passar?</h3>
+      <div class="tblwrap"><table class="tbl">
+        <thead><tr><th>Instrucció</th><th>El robot literal fa…</th></tr></thead>
+        <tbody>
+          <tr><td>«Posa el formatge al pa»</td><td>Posa el formatge sobre la bossa de pa, que segueix tancada.</td></tr>
+          <tr><td>«Talla el pa»</td><td>Talla la bossa, el pa i una part de la taula.</td></tr>
+          <tr><td>«Unta mantega»</td><td>Intenta untar-la amb el pot tancat.</td></tr>
+        </tbody></table></div>
+      <details class="sol"><summary>Què n’hem après?</summary><div class="body">
+        <ul class="dot">
+          <li><strong>Precisió:</strong> una ordre ambigua no és una ordre.</li>
+          <li><strong>Ordre:</strong> obrir la bossa va abans de treure el pa.</li>
+          <li><strong>Casos especials:</strong> i si no queda formatge?</li>
+          <li><strong>Descomposició:</strong> «fer l’entrepà» són molts passos petits.</li>
+        </ul></div></details>
+    </div>
+  </div>
+</div></section>
+
+<!-- 6 · QUÈ ÉS -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Què és el pensament computacional?</h2></div>
+  <p class="big-def">És la manera de plantejar un problema perquè es pugui resoldre amb passos clars, de forma que ho pugui executar una persona o una màquina.</p>
+  <div class="grid g3">
+    <div class="tile"><h3>Independent del llenguatge</h3><p>Serveix igual per a Java, Python, Kotlin o Swift. Primer la idea, després la sintaxi.</p></div>
+    <div class="tile"><h3>Útil dins i fora de la informàtica</h3><p>Organitzar un viatge, una recepta o un torneig també és pensar de manera computacional.</p></div>
+    <div class="tile"><h3>Es pot entrenar</h3><p>No cal «tenir el do»: es millora resolent molts problemes i revisant com s’han resolt.</p></div>
+  </div>
+  <div class="callout"><p><strong>No és «pensar com un ordinador».</strong> Els ordinadors no pensen: executen. El pensament computacional és el que fem nosaltres per poder dir-los, sense ambigüitats, què han d’executar.</p></div>
+</div></section>
+
+<!-- 7 · PER QUÈ IMPORTA -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Per què importa en un cicle de DAM?</h2></div>
+  <div class="grid g2">
+    <div class="tile"><h3>Els llenguatges canvien, la manera de pensar es queda</h3><p>Avui Java, demà Kotlin, Swift o Dart. La lògica per resoldre un problema és la mateixa.</p></div>
+    <div class="tile"><h3>Els errors cars són de disseny</h3><p>Un error de sintaxi es corregeix en segons. Un error de plantejament pot costar setmanes.</p></div>
+    <div class="tile"><h3>Permet treballar en equip</h3><p>Un projecte ben descompost es reparteix. Un de mal descompost fa que tothom trepitgi el codi dels altres.</p></div>
+    <div class="tile"><h3>És la base de la resta de mòduls</h3><p>Bases de dades, interfícies, accés a dades o serveis parteixen de descompondre i abstreure.</p></div>
+  </div>
+  <div class="callout"><p><strong>Amb eines d’IA, encara més.</strong> Poden generar codi, però algú ha d’explicar bé el problema i comprovar que la solució és correcta. Aquest algú sou vosaltres.</p></div>
+</div></section>
+
+<!-- 8 · QUATRE PILARS -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Els quatre pilars del pensament computacional</h2></div>
+  <div class="grid g4">
+    <div class="pill" style="--c:var(--p1)">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="6" width="32" height="32" rx="3"/><path d="M22 6v32M6 22h32"/></svg>
+      <h3>Descomposició</h3><p class="q">Com el puc trossejar?</p><p class="small muted">Dividir un problema gran en parts petites i manejables.</p>
+    </div>
+    <div class="pill" style="--c:var(--p2)">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="6" width="11" height="11"/><circle cx="31" cy="11.5" r="5.5"/><rect x="6" y="27" width="11" height="11"/><circle cx="31" cy="32.5" r="5.5"/></svg>
+      <h3>Reconeixement de patrons</h3><p class="q">Què es repeteix?</p><p class="small muted">Trobar semblances entre problemes o dins d’un mateix problema.</p>
+    </div>
+    <div class="pill" style="--c:var(--p3)">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="16"/><circle cx="22" cy="22" r="7"/></svg>
+      <h3>Abstracció</h3><p class="q">Què importa i què no?</p><p class="small muted">Quedar-nos amb l’essencial i ignorar el detall que no aporta.</p>
+    </div>
+    <div class="pill" style="--c:var(--p4)">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="5" y="5" width="15" height="10" rx="2"/><rect x="25" y="17" width="15" height="10" rx="2"/><rect x="5" y="29" width="15" height="10" rx="2"/><path d="M12 15v5h13M32 27v2H20"/></svg>
+      <h3>Disseny d’algorismes</h3><p class="q">Quins passos, en quin ordre?</p><p class="small muted">Escriure la solució com una seqüència precisa de passos.</p>
+    </div>
+  </div>
+  <div class="callout"><p>No són fases rígides. En un problema real els fas servir tots alhora i hi tornes una vegada i una altra. Ara els veurem un per un, amb exemples.</p></div>
+</div></section>
+
+<!-- 9 · DESCOMPOSICIÓ -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Descomposició: dividir per vèncer</h2></div>
+  <p class="lead">Un problema gran fa por. Cinc problemes petits, no. Exemple: una <strong>aplicació per reservar taula en restaurants</strong>.</p>
+  <div class="tree">
+    <div class="root">App de reserves de restaurants</div>
+    <div class="kids">
+      <div class="kid"><b>Comptes d’usuari</b><ul><li>Registre</li><li>Inici de sessió</li><li>Perfil</li></ul></div>
+      <div class="kid"><b>Cerca</b><ul><li>Per ciutat</li><li>Per tipus de cuina</li><li>Filtres de preu</li></ul></div>
+      <div class="kid"><b>Reserves</b><ul><li>Triar dia i hora</li><li>Comprovar disponibilitat</li><li>Confirmar</li></ul></div>
+      <div class="kid"><b>Avisos</b><ul><li>Correu de confirmació</li><li>Recordatori</li></ul></div>
+    </div>
+  </div>
+  <div class="callout"><p><strong>Com saps que has descompost bé?</strong> Cada tros es pot entendre, provar i repartir a una persona diferent de l’equip. I si un tros falla, saps on mirar.</p></div>
+</div></section>
+
+<!-- 10 · PATRONS -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Reconeixement de patrons: no ho resoldràs tres vegades</h2></div>
+  <div class="grid g3">
+    <div class="tile"><h3>Acumular</h3>
+      <ul class="dot small"><li>Sumar les notes d’una classe</li><li>Sumar els preus d’una cistella</li><li>Sumar els km de cada etapa</li></ul>
+      <p><strong>Patró:</strong> anar afegint cada valor a un total.</p></div>
+    <div class="tile"><h3>Validar</h3>
+      <ul class="dot small"><li>Comprovar una edat</li><li>Comprovar un correu electrònic</li><li>Comprovar una contrasenya</li></ul>
+      <p><strong>Patró:</strong> demanar una dada, comprovar-la i tornar-la a demanar si no és vàlida.</p></div>
+    <div class="tile"><h3>Trobar el millor</h3>
+      <ul class="dot small"><li>El nombre més gran</li><li>El producte més barat</li><li>L’alumne amb millor nota</li></ul>
+      <p><strong>Patró:</strong> guardar el millor vist fins ara i comparar amb el següent.</p></div>
+  </div>
+  <div class="callout"><p>Un patró reconegut és una solució que <strong>s’escriu una vegada i es reutilitza</strong>. Més endavant veurem que a la programació es tradueix en bucles i en funcions.</p></div>
+</div></section>
+
+<!-- 11 · ABSTRACCIÓ -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Abstracció: quedar-nos amb l’essencial</h2></div>
+  <div class="grid g2 center">
+    <div>
+      <svg class="metro" viewBox="0 0 360 220" role="img" aria-label="Plànol esquemàtic de metro amb dues línies i una correspondència">
+        <g fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <polyline stroke="#2F58F0" points="20,60 120,60 180,110 340,110"/>
+          <polyline stroke="#D6336C" points="40,180 120,180 180,110 240,50 340,50"/>
+        </g>
+        <g fill="#fff" stroke="#12183A" stroke-width="3">
+          <circle cx="20" cy="60" r="6"/><circle cx="70" cy="60" r="6"/><circle cx="120" cy="60" r="6"/>
+          <circle cx="250" cy="110" r="6"/><circle cx="340" cy="110" r="6"/>
+          <circle cx="40" cy="180" r="6"/><circle cx="120" cy="180" r="6"/><circle cx="240" cy="50" r="6"/><circle cx="340" cy="50" r="6"/>
+          <circle cx="180" cy="110" r="10"/>
+        </g>
+      </svg>
+      <p class="small muted">El plànol del metro no té escala ni carrers: només estacions i connexions. Per això serveix.</p>
+    </div>
+    <div>
+      <h3>Exemple: un alumne en una app de notes</h3>
+      <div class="keepign">
+        <div class="callout ok"><p><strong>Ho guardem</strong></p><ul><li>Nom i cognoms</li><li>Cicle i curs</li><li>Notes</li></ul></div>
+        <div class="callout bad"><p><strong>Ho ignorem</strong></p><ul><li>Color dels ulls</li><li>Alçada</li><li>Equip de futbol</li></ul></div>
+      </div>
+      <p>El que és essencial <strong>depèn del problema</strong>: per a una app d’un gimnàs, l’alçada sí que importaria.</p>
+    </div>
+  </div>
+  <div class="callout"><p><strong>Abstreure també és amagar el detall.</strong> Conduïm sense saber com funciona el motor. Aquesta idea serà la base de les funcions i de les classes.</p></div>
+</div></section>
+
+<!-- 12 · ALGORISMES -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Disseny d’algorismes</h2></div>
+  <p class="big-def">Un algorisme és una seqüència finita, ordenada i no ambigua de passos que resol un problema.</p>
+  <div class="grid g4">
+    <div class="tile"><h3>Finit</h3><p class="small">Acaba en algun moment.</p></div>
+    <div class="tile"><h3>Precís</h3><p class="small">Cada pas té un únic significat.</p></div>
+    <div class="tile"><h3>Definit</h3><p class="small">Té entrades i una sortida clares.</p></div>
+    <div class="tile"><h3>Efectiu</h3><p class="small">Cada pas es pot executar realment.</p></div>
+  </div>
+  <div class="grid g2 mt">
+    <div class="panel"><h3>Exemple: el major de tres nombres</h3>
+      <ol class="st"><li>Llegeix A, B i C.</li><li>Suposa que el major és A.</li><li>Si B és més gran que el major, el major passa a ser B.</li><li>Si C és més gran que el major, el major passa a ser C.</li><li>Mostra el major.</li></ol></div>
+    <div>
+      <div class="callout"><p>Aquest algorisme també funciona amb 100 nombres. <strong>És un patró</strong>: guardar el millor vist fins ara.</p></div>
+      <div class="callout bad"><p><strong>Això no és un pas d’algorisme:</strong> «afegeix sal al gust». No és precís. En un algorisme diríem quants grams.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 13 · PROCÉS -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Del problema al programa</h2></div>
+  <div class="flow6">
+    <div class="st6"><h3>Entendre</h3><p>Quines dades entren? Quin resultat s’espera? Quines restriccions hi ha?</p></div>
+    <div class="st6"><h3>Descompondre</h3><p>Quines parts té el problema?</p></div>
+    <div class="st6"><h3>Patrons i abstracció</h3><p>Què es repeteix? Què puc ignorar?</p></div>
+    <div class="st6"><h3>Dissenyar</h3><p>Diagrama de flux o pseudocodi.</p></div>
+    <div class="st6"><h3>Codificar</h3><p>Traduir el disseny a un llenguatge de programació.</p></div>
+    <div class="st6"><h3>Provar</h3><p>Casos normals, casos límit i casos erronis.</p></div>
+  </div>
+  <div class="back">Si la prova falla, torna al pas 4. Si t’adones que no havies entès el problema, torna al pas 1.</div>
+  <div class="callout"><p><strong>Els passos 1 a 4 no necessiten ordinador.</strong> Un full i un llapis són suficients, i és on es guanya o es perd més temps.</p></div>
+</div></section>
+
+<!-- 14 · EXEMPLE 1 -->
+<section class="slide" data-part="2"><div class="inner">
+  <div class="hd"><h2>Exemple resolt 1: cobrament amb descompte</h2></div>
+  <p class="lead"><strong>Enunciat:</strong> una botiga vol calcular el total d’una compra. Si el client té targeta de fidelitat, té un 10 % de descompte.</p>
+  <div class="grid g2">
+    <div class="panel"><table class="tbl"><tbody>
+      <tr><th>Entendre</th><td>Entrades: preu unitari, quantitat i si té targeta. Sortida: total a pagar.</td></tr>
+      <tr><th>Descompondre</th><td>Llegir dades, calcular subtotal, aplicar descompte si cal i mostrar el total.</td></tr>
+      <tr><th>Patró</th><td>«Aplicar un descompte condicional» apareix en moltes botigues.</td></tr>
+      <tr><th>Abstracció</th><td>Ignorem el nom del producte, la data i el mètode de pagament.</td></tr>
+    </tbody></table></div>
+    <div>
+      <div class="callout"><p><strong>Algorisme en llenguatge natural</strong></p>
+        <ol class="st"><li>Demana el preu i la quantitat.</li><li>Calcula el subtotal: preu × quantitat.</li><li>Pregunta si el client té targeta.</li><li>Si en té, el total és el subtotal menys el 10 %. Si no, el total és el subtotal.</li><li>Mostra el total.</li></ol></div>
+      <p class="small"><strong>Casos de prova:</strong> preu 20, quantitat 3. Amb targeta, 54. Sense targeta, 60.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 15 · EXEMPLE 2 -->
+<section class="slide" data-part="2"><div class="inner">
+  <div class="hd"><h2>Exemple resolt 2: el canvi d’una màquina expenedora</h2></div>
+  <p class="lead"><strong>Enunciat:</strong> tornar el canvi amb el mínim de monedes. Suposem monedes de 2 €, 1 €, 50, 20 i 10 cèntims.</p>
+  <div class="grid g2">
+    <div class="panel"><h3>Canvi a tornar: 370 cèntims</h3>
+      <div class="tblwrap"><table class="tbl">
+        <thead><tr><th>Moneda</th><th>Quantes en cap</th><th>Queda per tornar</th></tr></thead>
+        <tbody>
+          <tr><td>200</td><td>1</td><td>170</td></tr>
+          <tr><td>100</td><td>1</td><td>70</td></tr>
+          <tr><td>50</td><td>1</td><td>20</td></tr>
+          <tr><td>20</td><td>1</td><td>0</td></tr>
+          <tr><td>10</td><td>0</td><td>0</td></tr>
+        </tbody></table></div></div>
+    <div>
+      <div class="callout"><p><strong>Patró</strong> (es repeteix per cada moneda):</p>
+        <ul class="dot"><li>Quantes monedes = queda <code>div</code> valor de la moneda</li><li>Queda = queda <code>mod</code> valor de la moneda</li></ul></div>
+      <div class="callout"><p><strong>Decisió de disseny:</strong> treballem en cèntims (nombres enters) per evitar errors d’arrodoniment amb decimals.</p></div>
+      <p class="small muted">Recordatori: <code>370 div 200 = 1</code> i <code>370 mod 200 = 170</code>.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 16 · EXERCICI 1 -->
+<section class="slide" data-part="2"><div class="inner">
+  <div class="hd"><h2>Exercici 1: la biblioteca de l’institut</h2></div>
+  <p class="lead">Es vol una aplicació per gestionar els préstecs de llibres de la biblioteca. <span class="time">15 minuts, en parelles</span></p>
+  <div class="ex"><b>a</b><p><strong>Descompon</strong> l’aplicació en 5 o 6 mòduls.</p></div>
+  <div class="ex"><b>b</b><p><strong>Identifica un patró</strong> que es repeteixi en almenys dues funcionalitats.</p></div>
+  <div class="ex"><b>c</b><p><strong>Abstracció:</strong> quines dades d’un «llibre» guardaries i quines no?</p></div>
+  <div class="ex"><b>d</b><div><p><strong>Algorisme:</strong> escriu en llenguatge natural els passos de «prestar un llibre». Mínim 6 passos. Contempla els casos en què no es pot prestar.</p>
+    <details class="sol"><summary>Proposta de solució</summary><div class="body">
+      <ul class="dot small">
+        <li><strong>a)</strong> Llibres (alta, baixa, cerca), usuaris, préstecs i devolucions, sancions i retards, informes.</li>
+        <li><strong>b)</strong> Cercar per títol, autor o ISBN és el mateix patró amb un criteri diferent. També es repeteix «comprovar si l’operació es pot fer i avisar si no».</li>
+        <li><strong>c)</strong> Guardem títol, autor, ISBN i si està disponible. Ignorem el color de la coberta, el pes o el preu de compra.</li>
+        <li><strong>d)</strong> 1) Demana el codi d’usuari. 2) Si no existeix, avisa i acaba. 3) Si té una sanció activa, avisa i acaba. 4) Demana l’ISBN. 5) Si el llibre no existeix o ja està prestat, avisa i acaba. 6) Registra el préstec amb la data d’avui. 7) Calcula la data de retorn (avui més 15 dies, com a exemple). 8) Marca el llibre com a no disponible. 9) Mostra la confirmació.</li>
+      </ul></div></details></div></div>
+</div></section>
+
+<!-- 17 · EXERCICI 2 -->
+<section class="slide" data-part="2"><div class="inner">
+  <div class="hd"><h2>Exercici 2: la màquina de cafè</h2></div>
+  <p class="lead">Activitat sense ordinador. Una persona que no ha vist mai una màquina de cafè vol comprar un cafè amb llet. <span class="time">10 minuts, en parelles</span></p>
+  <div class="callout"><p><strong>Repte:</strong> escriviu, en passos numerats, l’algorisme que ha de seguir la <strong>màquina</strong> des que la persona s’hi acosta fins que recull el cafè.</p>
+    <p>Tingueu en compte què pot anar malament: no queden gots, no queda llet, la persona no posa prou monedes o es decideix a cancel·lar.</p></div>
+  <div class="grid g2">
+    <div class="panel"><h3>Per debatre després</h3>
+      <ul class="dot">
+        <li>Quins passos són <strong>decisions</strong> (si passa això, fes allò)?</li>
+        <li>Quins passos es <strong>repeteixen</strong> fins que passi alguna cosa?</li>
+        <li>Marqueu-los amb dos colors diferents. Us serviran per al pseudocodi.</li>
+      </ul></div>
+    <div>
+      <details class="sol"><summary>Proposta de solució</summary><div class="body">
+        <ol class="st small">
+          <li>Mostra el menú de begudes i els preus.</li>
+          <li>La persona tria una beguda.</li>
+          <li>Si la beguda no està disponible, avisa i torna al pas 1.</li>
+          <li>Si no queden gots, avisa i acaba.</li>
+          <li>Mentre no s’hagi pagat el preu, demana una moneda i afegeix-la a l’import. Si la persona prem cancel·lar, retorna-li les monedes i acaba.</li>
+          <li>Deixa caure un got i prepara la beguda.</li>
+          <li>Si s’ha pagat de més, retorna el canvi.</li>
+          <li>Avisa que la beguda és a punt.</li>
+        </ol>
+        <p class="small"><strong>Decisions:</strong> passos 3, 4, 5 (cancel·lar) i 7. <strong>Repetició:</strong> el pas 5, que es repeteix mentre falti pagar.</p></div></details>
+    </div>
+  </div>
+</div></section>
+
+<!-- 18 · DIVISOR PART 3 -->
+<section class="slide divider" data-part="3"><div class="inner">
+  <div class="pt">Part 3</div>
+  <h2>Pseudocodi</h2>
+  <p>Escriure la solució abans del codi.</p>
+  <div class="dots"><i></i><i></i><i class="on"></i><i></i></div>
+</div></section>
+
+<!-- 19 · QUÈ ÉS PSEUDOCODI -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Pseudocodi: entre el llenguatge natural i el codi</h2></div>
+  <div class="grid g3">
+    <div>
+      <h3>Llenguatge natural</h3>
+      <div class="callout"><p>Demana un nombre i mostra’n el doble.</p></div>
+      <p class="small muted">Còmode, però ambigu.</p>
+    </div>
+    <div>
+      <h3>Pseudocodi</h3>
+      <pre class="code">
+        llegir(n)
+        escriure(n * 2)
+      </pre>
+      <p class="small muted">Precís i sense sintaxi d’un llenguatge concret.</p>
+    </div>
+    <div>
+      <h3>Codi real</h3>
+      <pre class="code java">
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        System.out.println(n * 2);
+      </pre>
+      <p class="small muted">Exemple en Java. Exacte, però ple de detalls del llenguatge.</p>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="tile"><h3>Per què l’utilitzem?</h3>
+      <ul class="dot"><li>Ens centrem en la <strong>lògica</strong>, no en punts i comes.</li><li>Es pot traduir a qualsevol llenguatge.</li><li>Ens permet comunicar-nos amb l’equip.</li></ul></div>
+    <div class="tile"><h3>Què cal recordar</h3>
+      <ul class="dot"><li>No s’executa: és per pensar i comunicar.</li><li>No té una sintaxi oficial, però sí <strong>convencions</strong>.</li><li>Ha de ser prou precís perquè algú altre el pugui codificar.</li></ul></div>
+  </div>
+</div></section>
+
+<!-- 20 · ESTRUCTURA -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Estructura d’un algorisme</h2></div>
+  <div class="grid g2">
+    <pre class="code" data-label="Convencions que farem servir a classe">
+      Algorisme salutacio
+        // Saluda l'usuari pel seu nom
+      Var
+        nom: text
+      Inici
+        escriure("Com et dius?")
+        llegir(nom)
+        escriure("Hola, ", nom)
+      Fi
+    </pre>
+    <div>
+      <ul class="plain">
+        <li><strong>Capçalera:</strong> <code>Algorisme</code> seguit d’un nom que digui què fa.</li>
+        <li><strong>Declaració:</strong> <code>Var</code> amb cada variable i el seu tipus. <code>Const</code> per als valors fixos.</li>
+        <li><strong>Cos:</strong> entre <code>Inici</code> i <code>Fi</code>, una instrucció per línia.</li>
+        <li><strong>Comentaris:</strong> començant per <code>//</code>. Expliquen el perquè, no repeteixen el què.</li>
+        <li><strong>Indentació:</strong> cada bloc es desplaça a la dreta. Fa visible l’estructura.</li>
+      </ul>
+      <div class="callout"><p>Si en un altre llibre veieu paraules lleugerament diferents (per exemple, «fi si» en comptes de «fisi»), la idea és la mateixa. L’important és ser coherents.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 21 · VARIABLES -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Variables, tipus i constants</h2></div>
+  <p class="big-def" style="font-size:1.35em">Una variable és un espai de memòria amb nom que guarda un valor que pot canviar.</p>
+  <div class="grid g2">
+    <div class="panel"><div class="tblwrap"><table class="tbl">
+      <thead><tr><th>Tipus</th><th>Guarda</th><th>Exemples</th></tr></thead>
+      <tbody>
+        <tr><td><code>enter</code></td><td>Nombres sense decimals</td><td><code>42</code>, <code>-7</code></td></tr>
+        <tr><td><code>real</code></td><td>Nombres amb decimals</td><td><code>3.14</code>, <code>0.21</code></td></tr>
+        <tr><td><code>text</code></td><td>Cadenes de text</td><td><code>"Hola"</code></td></tr>
+        <tr><td><code>caràcter</code></td><td>Una sola lletra</td><td><code>'A'</code></td></tr>
+        <tr><td><code>booleà</code></td><td>Cert o fals</td><td><code>cert</code>, <code>fals</code></td></tr>
+      </tbody></table></div>
+      <p class="small muted">En pseudocodi escrivim els decimals amb punt.</p></div>
+    <div>
+      <pre class="code">
+        Const
+          IVA: real = 0.21
+        Var
+          edat: enter
+          preuFinal: real
+          nom: text
+          majorDEdat: booleà
+      </pre>
+      <div class="grid g2">
+        <div class="callout ok"><p><strong>Bons noms</strong></p><p class="small"><code>edat</code>, <code>preuTotal</code>, <code>numAlumnes</code></p></div>
+        <div class="callout bad"><p><strong>Mals noms</strong></p><p class="small"><code>x</code>, <code>dades2</code>, <code>cosa</code></p></div>
+      </div>
+      <p class="small">Comencen per lletra, sense espais, i diuen què contenen. Cada variable té un únic tipus.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 22 · ASSIGNACIÓ, E/S -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Assignació, entrada i sortida</h2></div>
+  <div class="grid g3">
+    <div class="tile"><h3>Assignació</h3><pre class="code">x ← 5
+nom ← "Anna"
+total ← preu * 3</pre><p class="small">Es calcula el que hi ha a la dreta i es <strong>guarda</strong> a la variable de l’esquerra.</p></div>
+    <div class="tile"><h3>Entrada</h3><pre class="code">llegir(edat)
+llegir(a, b)</pre><p class="small">Demana valors a l’usuari i els guarda a les variables. Admet diverses variables separades per comes.</p></div>
+    <div class="tile"><h3>Sortida</h3><pre class="code">escriure("Hola")
+escriure("Total: ", total)</pre><p class="small">Mostra text i valors. Els elements se separen per comes.</p></div>
+  </div>
+  <div class="grid g2 mt">
+    <div class="callout bad"><p><strong>El símbol ← no és el = de les matemàtiques.</strong></p><p><code>a ← a + 1</code> no és una equació impossible: vol dir «calcula <code>a + 1</code> i torna-ho a guardar a <code>a</code>».</p></div>
+    <div class="panel"><h3>Traça mínima</h3>
+      <table class="tbl"><thead><tr><th>Instrucció</th><th>Valor de a</th></tr></thead>
+      <tbody><tr><td><code>a ← 5</code></td><td>5</td></tr><tr><td><code>a ← a + 1</code></td><td>6</td></tr><tr><td><code>a ← a * 2</code></td><td>12</td></tr></tbody></table></div>
+  </div>
+</div></section>
+
+<!-- 23 · OPERADORS -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Operadors</h2></div>
+  <div class="grid g3">
+    <div class="panel"><h3>Aritmètics</h3>
+      <p><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>div</code> <code>mod</code></p>
+      <table class="tbl small"><tbody>
+        <tr><td><code>17 / 5</code></td><td>3.4</td></tr>
+        <tr><td><code>17 div 5</code></td><td>3 (quocient enter)</td></tr>
+        <tr><td><code>17 mod 5</code></td><td>2 (residu)</td></tr>
+      </tbody></table>
+      <p class="small muted"><code>n mod 2 = 0</code> vol dir que n és parell.</p></div>
+    <div class="panel"><h3>Relacionals</h3>
+      <p><code>=</code> <code>≠</code> <code>&lt;</code> <code>&gt;</code> <code>≤</code> <code>≥</code></p>
+      <p>Comparen dos valors i el resultat és un <strong>booleà</strong>.</p>
+      <table class="tbl small"><tbody>
+        <tr><td><code>5 &gt; 3</code></td><td>cert</td></tr>
+        <tr><td><code>edat ≥ 18</code></td><td>depèn d’edat</td></tr>
+        <tr><td><code>4 ≠ 4</code></td><td>fals</td></tr>
+      </tbody></table></div>
+    <div class="panel"><h3>Lògics</h3>
+      <p><code>i</code> <code>o</code> <code>no</code></p>
+      <table class="tbl small"><thead><tr><th>A</th><th>B</th><th>A i B</th><th>A o B</th></tr></thead>
+      <tbody>
+        <tr><td>cert</td><td>cert</td><td>cert</td><td>cert</td></tr>
+        <tr><td>cert</td><td>fals</td><td>fals</td><td>cert</td></tr>
+        <tr><td>fals</td><td>cert</td><td>fals</td><td>cert</td></tr>
+        <tr><td>fals</td><td>fals</td><td>fals</td><td>fals</td></tr>
+      </tbody></table>
+      <p class="small muted"><code>no cert</code> és <code>fals</code>, i a l’inrevés.</p></div>
+  </div>
+  <div class="callout"><p><strong>Precedència:</strong> parèntesis, després <code>*</code> <code>/</code> <code>div</code> <code>mod</code>, després <code>+</code> <code>-</code>, després les comparacions, i per últim <code>no</code>, <code>i</code>, <code>o</code>. Si dubtes, posa parèntesis.</p></div>
+</div></section>
+
+<!-- 24 · SEQÜÈNCIA -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Estructura seqüencial</h2></div>
+  <p>Les instruccions s’executen una darrere l’altra, de dalt a baix, sense saltar-ne cap. Exemple: l’àrea i el perímetre d’un rectangle.</p>
+  <div class="grid g2 center">
+    <pre class="code">
+      Algorisme rectangle
+      Var
+        base, altura, area, perimetre: real
+      Inici
+        escriure("Base i altura?")
+        llegir(base, altura)
+        area ← base * altura
+        perimetre ← 2 * (base + altura)
+        escriure("Àrea: ", area)
+        escriure("Perímetre: ", perimetre)
+      Fi
+    </pre>
+    <svg class="fc" viewBox="0 0 300 356" role="img" aria-label="Diagrama de flux seqüencial: inici, llegir, dos càlculs, escriure i fi">
+      <rect class="n t" x="85" y="10" width="130" height="36" rx="18"/><text x="150" y="28">Inici</text>
+      <path d="M150 46V66" marker-end="url(#arw)"/>
+      <polygon class="n" points="52,68 262,68 248,106 38,106"/><text x="150" y="87">llegir(base, altura)</text>
+      <path d="M150 106V126" marker-end="url(#arw)"/>
+      <rect class="n" x="45" y="128" width="210" height="38" rx="4"/><text x="150" y="147">area ← base * altura</text>
+      <path d="M150 166V186" marker-end="url(#arw)"/>
+      <rect class="n" x="45" y="188" width="210" height="38" rx="4"/><text x="150" y="207">perimetre ← 2*(base+altura)</text>
+      <path d="M150 226V246" marker-end="url(#arw)"/>
+      <polygon class="n" points="52,248 262,248 248,286 38,286"/><text x="150" y="267">escriure(area, perimetre)</text>
+      <path d="M150 286V306" marker-end="url(#arw)"/>
+      <rect class="n t" x="85" y="308" width="130" height="36" rx="18"/><text x="150" y="326">Fi</text>
+    </svg>
+  </div>
+</div></section>
+
+<!-- 25 · CONDICIONAL -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Estructura condicional: si … llavors … sinó</h2></div>
+  <div class="grid g2 center">
+    <div>
+      <pre class="code" data-label="Sintaxi">
+        si condició llavors
+          // instruccions si és cert
+        sinó
+          // instruccions si és fals
+        fisi
+      </pre>
+      <pre class="code" data-label="Exemple">
+        Algorisme majoriaDEdat
+        Var
+          edat: enter
+        Inici
+          escriure("Quants anys tens?")
+          llegir(edat)
+          si edat ≥ 18 llavors
+            escriure("Ets major d'edat")
+          sinó
+            escriure("Ets menor d'edat")
+          fisi
+        Fi
+      </pre>
+      <p class="small muted">El <code>sinó</code> és opcional: sense ell, si la condició és falsa no passa res.</p>
+    </div>
+    <svg class="fc" viewBox="0 0 380 344" role="img" aria-label="Diagrama de flux amb una decisió que tria entre dues sortides">
+      <rect class="n t" x="125" y="10" width="130" height="36" rx="18"/><text x="190" y="28">Inici</text>
+      <path d="M190 46V66" marker-end="url(#arw)"/>
+      <polygon class="n" points="94,68 300,68 286,106 80,106"/><text x="190" y="87">llegir(edat)</text>
+      <path d="M190 106V126" marker-end="url(#arw)"/>
+      <polygon class="n" points="190,128 310,160 190,192 70,160"/><text x="190" y="160">edat ≥ 18 ?</text>
+      <path d="M70 160V212" marker-end="url(#arw)"/><text class="lb" x="78" y="190">No</text>
+      <path d="M310 160V212" marker-end="url(#arw)"/><text class="lb" x="318" y="190">Sí</text>
+      <rect class="n" x="6" y="214" width="128" height="38" rx="4"/><text x="70" y="233">escriure("Menor")</text>
+      <rect class="n" x="246" y="214" width="128" height="38" rx="4"/><text x="310" y="233">escriure("Major")</text>
+      <path d="M70 252V276H190M310 252V276H190"/>
+      <path d="M190 276V294" marker-end="url(#arw)"/>
+      <rect class="n t" x="125" y="296" width="130" height="36" rx="18"/><text x="190" y="314">Fi</text>
+    </svg>
+  </div>
+</div></section>
+
+<!-- 26 · CONDICIONS COMPOSTES -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Condicions compostes i encadenades</h2></div>
+  <div class="grid g2">
+    <div>
+      <h3>Composta amb <code>i</code>, <code>o</code>, <code>no</code></h3>
+      <pre class="code">
+        si (edat ≥ 18) i (teCarnet) llavors
+          escriure("Pots conduir")
+        sinó
+          escriure("No pots conduir")
+        fisi
+      </pre>
+      <p class="small">Cada condició va entre parèntesis. <code>teCarnet</code> és una variable booleà.</p>
+      <div class="callout bad"><p><strong>L’ordre importa.</strong> En una cadena, només s’executa la primera condició certa. Si haguéssim posat <code>nota &lt; 9</code> la primera, un 3 diria «Notable».</p></div>
+    </div>
+    <div>
+      <h3>Encadenada: <code>sinó si</code></h3>
+      <pre class="code">
+        si nota < 5 llavors
+          escriure("Suspès")
+        sinó si nota < 7 llavors
+          escriure("Aprovat")
+        sinó si nota < 9 llavors
+          escriure("Notable")
+        sinó
+          escriure("Excel·lent")
+        fisi
+      </pre>
+      <p class="small">Un sol <code>fisi</code> tanca tota la cadena.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 27 · SEGONS -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Condicional múltiple: segons</h2></div>
+  <div class="grid g2">
+    <div>
+      <pre class="code" data-label="Un menú d'opcions">
+        segons opcio fer
+          cas 1: escriure("Alta d'alumne")
+          cas 2: escriure("Baixa d'alumne")
+          cas 3: escriure("Consulta")
+          altrament: escriure("Opció no vàlida")
+        fisegons
+      </pre>
+      <p class="small">S’executa el <code>cas</code> que coincideix amb el valor. Si cap coincideix, es fa l’<code>altrament</code>.</p>
+    </div>
+    <div class="panel"><h3>Quan fer servir cada una?</h3>
+      <table class="tbl small"><thead><tr><th>Situació</th><th>Estructura</th></tr></thead>
+      <tbody>
+        <tr><td>Dues opcions (sí o no)</td><td><code>si … sinó</code></td></tr>
+        <tr><td>Rangs de valors (notes, edats)</td><td><code>si … sinó si</code></td></tr>
+        <tr><td>Valors concrets (menú, dia, codi)</td><td><code>segons</code></td></tr>
+      </tbody></table></div>
+  </div>
+</div></section>
+
+<!-- 28 · REPETITIVES -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Estructures repetitives: no escriguem 100 vegades el mateix</h2></div>
+  <div class="grid g2">
+    <pre class="code bad" data-label="Sense bucle">
+      escriure("Hola")
+      escriure("Hola")
+      escriure("Hola")
+      escriure("Hola")
+      escriure("Hola")
+    </pre>
+    <pre class="code good" data-label="Amb bucle">
+      per i des de 1 fins a 5 fer
+        escriure("Hola")
+      fiper
+    </pre>
+  </div>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Estructura</th><th>Quan la triem</th><th>Vegades</th><th>Condició</th></tr></thead>
+    <tbody>
+      <tr><td><code>mentre … fer</code></td><td>No sabem quantes vegades. Pot ser cap.</td><td>0 o més</td><td>Es comprova abans</td></tr>
+      <tr><td><code>repetir … fins que</code></td><td>Cal fer-ho almenys una vegada (per exemple, validar).</td><td>1 o més</td><td>Es comprova després</td></tr>
+      <tr><td><code>per … des de … fins a</code></td><td>Sabem quantes vegades.</td><td>Fixes</td><td>La gestiona el comptador</td></tr>
+    </tbody></table></div>
+  <div class="callout"><p><strong>Com triar:</strong> saps quantes vegades? Usa <code>per</code>. Si no, ha de passar almenys un cop? Usa <code>repetir</code>. Si no, usa <code>mentre</code>.</p></div>
+</div></section>
+
+<!-- 29 · MENTRE -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Bucle mentre: sumar fins que l’usuari escrigui 0</h2></div>
+  <div class="grid g2 center">
+    <div>
+      <pre class="code">
+        Algorisme sumaFinsZero
+        Var
+          n, suma: enter
+        Inici
+          suma ← 0
+          llegir(n)
+          mentre n ≠ 0 fer
+            suma ← suma + n
+            llegir(n)
+          fimentre
+          escriure("Total: ", suma)
+        Fi
+      </pre>
+      <div class="callout"><p><strong>Compte amb el bucle infinit:</strong> dins del bucle cal modificar la variable que decideix si continuem (aquí, <code>n</code>). Si no, no s’acabarà mai.</p></div>
+    </div>
+    <svg class="fc" viewBox="0 0 420 392" role="img" aria-label="Diagrama de flux d'un bucle mentre amb retorn a la decisió">
+      <rect class="n t" x="85" y="10" width="130" height="36" rx="18"/><text x="150" y="28">Inici</text>
+      <path d="M150 46V66" marker-end="url(#arw)"/>
+      <rect class="n" x="55" y="68" width="190" height="38" rx="4"/><text x="150" y="87">suma ← 0</text>
+      <path d="M150 106V126" marker-end="url(#arw)"/>
+      <polygon class="n" points="70,128 244,128 230,166 56,166"/><text x="150" y="147">llegir(n)</text>
+      <path d="M150 166V186" marker-end="url(#arw)"/>
+      <polygon class="n" points="150,188 250,220 150,252 50,220"/><text x="150" y="220">n ≠ 0 ?</text>
+      <path d="M150 252V280" marker-end="url(#arw)"/><text class="lb" x="158" y="270">Sí</text>
+      <rect class="n" x="55" y="282" width="190" height="38" rx="4"/><text x="150" y="301">suma ← suma + n</text>
+      <path d="M150 320V340" marker-end="url(#arw)"/>
+      <polygon class="n" points="70,342 244,342 230,380 56,380"/><text x="150" y="361">llegir(n)</text>
+      <path d="M63 361H20V220H48" marker-end="url(#arw)"/>
+      <path d="M250 220H345V280" marker-end="url(#arw)"/><text class="lb" x="262" y="212">No</text>
+      <polygon class="n" points="292,282 412,282 398,320 278,320"/><text x="345" y="301">escriure(suma)</text>
+      <path d="M345 320V340" marker-end="url(#arw)"/>
+      <rect class="n t" x="290" y="342" width="110" height="36" rx="18"/><text x="345" y="360">Fi</text>
+    </svg>
+  </div>
+</div></section>
+
+<!-- 30 · PER -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Bucle per: quan sabem quantes vegades</h2></div>
+  <div class="grid g2">
+    <div>
+      <pre class="code" data-label="Sintaxi">
+        per variable des de inici fins a final fer
+          // instruccions
+        fiper
+      </pre>
+      <pre class="code" data-label="La taula del 5">
+        per i des de 1 fins a 10 fer
+          escriure("5 x ", i, " = ", 5 * i)
+        fiper
+      </pre>
+    </div>
+    <div>
+      <pre class="code" data-label="Compte enrere (pas negatiu)">
+        per i des de 10 fins a 1 pas -1 fer
+          escriure(i)
+        fiper
+        escriure("Enlairament!")
+      </pre>
+      <div class="callout"><p>El comptador (<code>i</code>) es crea, s’incrementa i es comprova <strong>automàticament</strong>. Per defecte puja de 1 en 1; amb <code>pas</code> podem canviar-ho.</p></div>
+      <p class="small muted">Pregunta: quantes vegades s’executa <code>per i des de 3 fins a 7</code>? Cinc: 3, 4, 5, 6 i 7.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 31 · REPETIR -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Bucle repetir … fins que: validar dades</h2></div>
+  <div class="grid g2">
+    <div>
+      <pre class="code" data-label="Sintaxi">
+        repetir
+          // instruccions
+        fins que condició
+      </pre>
+      <pre class="code" data-label="Validar una edat">
+        repetir
+          escriure("Introdueix una edat (0-120):")
+          llegir(edat)
+        fins que (edat ≥ 0) i (edat ≤ 120)
+      </pre>
+    </div>
+    <div>
+      <div class="callout"><p>El cos s’executa <strong>almenys una vegada</strong>, perquè la condició es comprova al final. Per això és ideal per demanar una dada.</p></div>
+      <div class="panel"><h3>Compte amb la condició</h3>
+        <p class="small"><code>mentre</code> té la condició de <strong>continuar</strong>.<br><code>fins que</code> té la condició d’<strong>aturar-se</strong>.</p>
+        <p class="small muted">Són contràries: <code>mentre x &lt; 5</code> equival a <code>fins que x ≥ 5</code>.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 32 · PATRONS DE BUCLE -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Patrons dins dels bucles</h2></div>
+  <div class="grid g4">
+    <div class="tile"><h3>Comptador</h3><p class="small">Quantes vegades passa alguna cosa.</p><pre class="code">cont ← 0
+...
+cont ← cont + 1</pre></div>
+    <div class="tile"><h3>Acumulador</h3><p class="small">Un total que va creixent.</p><pre class="code">suma ← 0
+...
+suma ← suma + x</pre></div>
+    <div class="tile"><h3>Màxim</h3><p class="small">El millor vist fins ara.</p><pre class="code">max ← primerValor
+...
+si x > max llavors
+  max ← x
+fisi</pre></div>
+    <div class="tile"><h3>Bandera</h3><p class="small">Una marca que canvia si passa alguna cosa.</p><pre class="code">trobat ← fals
+...
+trobat ← cert</pre></div>
+  </div>
+  <div class="grid g2 mt">
+    <pre class="code" data-label="Exemple: mitjana de n notes">
+      suma ← 0
+      per i des de 1 fins a n fer
+        llegir(nota)
+        suma ← suma + nota
+      fiper
+      mitjana ← suma / n
+      escriure("Mitjana: ", mitjana)
+    </pre>
+    <div>
+      <div class="callout bad"><p><strong>Inicialitza sempre.</strong> Un acumulador sense valor inicial té «brossa». I el màxim no s’inicialitza a 0: què passaria si tots els valors són negatius? Comença amb el primer valor llegit.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 33 · TRAÇA INTERACTIVA -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Executa-ho a mà: la taula de traça</h2></div>
+  <p>Una traça és seguir l’algorisme pas a pas anotant el valor de cada variable. És la millor eina per trobar errors <strong>abans</strong> de programar. Prem <em>Pas endavant</em> i observa què canvia.</p>
+  <div class="trace">
+    <div class="tcode" id="tcode" aria-label="Algorisme"></div>
+    <div>
+      <table class="tbl vars"><thead><tr><th>Variable</th><th>Valor</th></tr></thead><tbody id="tvars"></tbody></table>
+      <div class="tout"><strong>Sortida:</strong> <span id="tout">—</span></div>
+      <div class="callout" id="tnote" aria-live="polite">Aquest algorisme suma els nombres de 1 a n. Comencem.</div>
+      <div class="tbtns">
+        <button class="btn" id="tprev" type="button">‹ Pas enrere</button>
+        <button class="btn" id="tnext" type="button">Pas endavant ›</button>
+        <button class="btn" id="treset" type="button">Reinicia</button>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 34 · DIAGRAMA → PSEUDOCODI -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Del diagrama de flux al pseudocodi</h2></div>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Símbol</th><th>Significa</th><th>En pseudocodi</th></tr></thead>
+    <tbody>
+      <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-term"/></svg></td><td>Inici i final</td><td><code>Inici</code> … <code>Fi</code></td></tr>
+      <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-io"/></svg></td><td>Entrada o sortida</td><td><code>llegir(x)</code> i <code>escriure(x)</code></td></tr>
+      <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-proc"/></svg></td><td>Procés</td><td><code>x ← x + 1</code></td></tr>
+      <tr><td><svg class="sym" viewBox="0 0 90 44"><use href="#s-dec"/></svg></td><td>Decisió</td><td><code>si … llavors … sinó … fisi</code></td></tr>
+    </tbody></table></div>
+  <div class="callout"><p><strong>Un bucle és una decisió amb una fletxa que torna enrere.</strong> Mira l’exemple del <code>mentre</code>: la decisió <em>n ≠ 0?</em> decideix si es repeteix el bloc o si se surt.</p></div>
+  <p class="muted small">Ús pràctic: el diagrama ajuda a veure el conjunt; el pseudocodi és més ràpid d’escriure, de modificar i de traduir a codi.</p>
+</div></section>
+
+<!-- 35 · EXEMPLES COMPLEMENTARIS 1 -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Exemples complementaris (1): els dos algorismes d’abans</h2></div>
+  <p>Recordes el major de tres nombres i el cobrament amb descompte? Ja els podem escriure.</p>
+  <div class="grid g2">
+    <div>
+      <pre class="code">
+        Algorisme majorDeTres
+        Var
+          a, b, c, major: enter
+        Inici
+          llegir(a, b, c)
+          major ← a
+          si b > major llavors
+            major ← b
+          fisi
+          si c > major llavors
+            major ← c
+          fisi
+          escriure("El major és ", major)
+        Fi
+      </pre>
+      <p class="small"><strong>Prova:</strong> (4, 9, 7) dóna 9. I (5, 5, 5)? Dóna 5.</p>
+    </div>
+    <div>
+      <pre class="code">
+        Algorisme cobrament
+        Const
+          DESCOMPTE: real = 0.10
+        Var
+          preu, subtotal, total: real
+          quantitat: enter
+          targeta: text
+        Inici
+          llegir(preu, quantitat)
+          subtotal ← preu * quantitat
+          escriure("Targeta? (si/no)")
+          llegir(targeta)
+          si targeta = "si" llavors
+            total ← subtotal * (1 - DESCOMPTE)
+          sinó
+            total ← subtotal
+          fisi
+          escriure("Total: ", total)
+        Fi
+      </pre>
+      <p class="small"><strong>Prova:</strong> preu 20, quantitat 3, targeta «si» dóna 54.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 36 · EXEMPLES COMPLEMENTARIS 2 -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Exemples complementaris (2): el canvi de monedes</h2></div>
+  <div class="grid g2">
+    <pre class="code">
+      Algorisme canvi
+      Var
+        canvi, monedes: enter
+      Inici
+        escriure("Canvi a tornar (en cèntims):")
+        llegir(canvi)
+
+        monedes ← canvi div 200
+        canvi ← canvi mod 200
+        escriure(monedes, " moneda(es) de 2 €")
+
+        monedes ← canvi div 100
+        canvi ← canvi mod 100
+        escriure(monedes, " moneda(es) de 1 €")
+
+        monedes ← canvi div 50
+        canvi ← canvi mod 50
+        escriure(monedes, " moneda(es) de 50 cèntims")
+        // ... i el mateix amb 20 i 10 cèntims
+      Fi
+    </pre>
+    <div>
+      <div class="callout"><p><strong>Reconeixes el patró?</strong> Els mateixos tres passos es repeteixen per cada moneda. Quan coneguem les taules de dades (<em>arrays</em>) ho resoldrem amb un únic bucle <code>per</code>.</p></div>
+      <div class="callout ok"><p>Si el canvi és menor que 200, <code>canvi div 200</code> dóna 0. No cal cap <code>si</code> per controlar-ho.</p></div>
+      <p class="small"><strong>Prova:</strong> amb 370 s’escriu 1 moneda de 2 €, 1 de 1 € i 1 de 50 cèntims, i queden 20 cèntims per a les monedes següents.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 37 · EXEMPLES COMPLEMENTARIS 3 -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Exemples complementaris (3): parell o senar, i factorial</h2></div>
+  <div class="grid g2">
+    <div>
+      <pre class="code">
+        Algorisme parellSenar
+        Var
+          n: enter
+        Inici
+          llegir(n)
+          si n mod 2 = 0 llavors
+            escriure(n, " és parell")
+          sinó
+            escriure(n, " és senar")
+          fisi
+        Fi
+      </pre>
+      <p class="small">El residu de dividir entre 2 és 0 només en els parells.</p>
+    </div>
+    <div>
+      <pre class="code">
+        Algorisme factorial
+        Var
+          n, i, fact: enter
+        Inici
+          llegir(n)
+          fact ← 1
+          per i des de 1 fins a n fer
+            fact ← fact * i
+          fiper
+          escriure(n, "! = ", fact)
+        Fi
+      </pre>
+      <div class="callout"><p>Un acumulador de <strong>productes</strong> comença a 1, no a 0. Si comencés a 0, tot donaria 0. I per a <code>n = 0</code> el bucle no s’executa i el resultat és 1, que és correcte.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 38 · BONES PRÀCTIQUES -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Bones pràctiques</h2></div>
+  <div class="grid g2">
+    <pre class="code bad" data-label="Difícil de llegir">
+      llegir(x)
+      y ← x * 0.21
+      z ← x + y
+      escriure(z)
+    </pre>
+    <pre class="code good" data-label="Clar">
+      llegir(preuBase)
+      iva ← preuBase * 0.21
+      preuFinal ← preuBase + iva
+      escriure(preuFinal)
+    </pre>
+  </div>
+  <ul class="chk">
+    <li>Posa <strong>noms significatius</strong> a les variables.</li>
+    <li><strong>Indenta</strong> cada bloc: es veu on comença i on acaba.</li>
+    <li>Una instrucció per línia.</li>
+    <li>Els comentaris expliquen <strong>el perquè</strong>, no repeteixen el què.</li>
+    <li><strong>Inicialitza</strong> les variables abans d’usar-les.</li>
+    <li>Prova amb un cas normal, un cas límit (0, el mínim, el màxim) i un cas erroni.</li>
+  </ul>
+</div></section>
+
+<!-- 39 · ERRORS -->
+<section class="slide" data-part="3"><div class="inner">
+  <div class="hd"><h2>Errors habituals</h2></div>
+  <div class="grid g3">
+    <div class="tile"><h3>Bucle infinit</h3>
+      <pre class="code bad">i ← 1
+mentre i ≤ 5 fer
+  escriure(i)
+fimentre</pre>
+      <p class="small">La <code>i</code> no canvia mai. Falta <code>i ← i + 1</code>.</p></div>
+    <div class="tile"><h3>Confondre = i ←</h3>
+      <pre class="code bad">si edat ← 18 llavors</pre>
+      <pre class="code good">si edat = 18 llavors</pre>
+      <p class="small"><code>←</code> guarda un valor. <code>=</code> compara.</p></div>
+    <div class="tile"><h3>Acumulador sense inicialitzar</h3>
+      <pre class="code bad">per i des de 1 fins a 5 fer
+  suma ← suma + i
+fiper</pre>
+      <p class="small">Falta <code>suma ← 0</code> abans del bucle.</p></div>
+  </div>
+  <div class="grid g3 mt">
+    <div class="callout bad"><p><strong>Off-by-one:</strong> volies 10 nombres i n’has escrit 9 (o 11). Repassa si vols <code>&lt;</code> o <code>≤</code>.</p></div>
+    <div class="callout bad"><p><strong>Condicions en mal ordre:</strong> en una cadena <code>sinó si</code> passa la primera certa.</p></div>
+    <div class="callout bad"><p><strong>Blocs sense tancar:</strong> oblidar <code>fisi</code>, <code>fimentre</code> o <code>fiper</code>. Ajuda tancar-lo tot just després d’obrir-lo.</p></div>
+  </div>
+</div></section>
+
+<!-- 50 · FINAL -->
+<section class="slide" data-part="1"><div class="inner">
+  <div class="hd"><h2>Preguntes i pròxims passos</h2></div>
+  <div class="grid g2">
+    <div class="callout"><p class="lead"><strong>Quina part us ha costat més?</strong></p><p>Aquest és el moment de repassar-la abans de continuar.</p></div>
+    <div class="panel"><h3>Per a la propera sessió (proposta)</h3>
+      <ul class="chk"><li>Repassar els exemples resolts i els dos exercicis en parelles.</li><li>Triar un problema quotidià i descompondre’l en 5 passos.</li><li>Escriure’n l’algorisme en pseudocodi i provar-lo amb una traça.</li></ul></div>
+  </div>
+  <div class="callout"><p>Pròxim pas del mòdul: <strong>traduir aquest pseudocodi a un llenguatge de programació real</strong>. Si el disseny és bo, la traducció és directa.</p></div>
+</div></section>
+
+<!-- NAV -->
+<nav class="nav" aria-label="Navegació de la presentació">
+  <div class="bar" id="bar"></div>
+  <button class="btn" id="prev" type="button" aria-label="Diapositiva anterior">‹ <span class="lab">Anterior</span></button>
+  <button class="btn" id="next" type="button" aria-label="Diapositiva següent"><span class="lab">Següent</span> ›</button>
+  <span class="count" id="count">1 / 1</span>
+  <span class="ttl" id="ttl"></span>
+  <span class="sp"></span>
+  <button class="btn" id="btnToc" type="button" aria-label="Obrir l'índex">Índex</button>
+  <button class="btn" id="btnTheme" type="button" aria-label="Canviar entre tema clar i fosc">Tema</button>
+  <button class="btn" id="btnFs" type="button" aria-label="Pantalla completa">⛶</button>
+</nav>
+
+<div class="toc" id="toc" role="dialog" aria-label="Índex de diapositives">
+  <h2>Índex</h2>
+  <div class="cols" id="tocCols"></div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)};
+  var L='(?<![\\p{L}\\d_])',R='(?![\\p{L}\\d_])';
+  var KW='Algorisme|Var|Const|Inici|Fi|si|llavors|sinó|fisi|segons|cas|altrament|fisegons|mentre|fer|fimentre|per|pas|fiper|repetir|llegir|escriure|div|mod|no|cert|fals';
+  var TY='enter|real|text|caràcter|booleà';
+  var RE=new RegExp('(\\/\\/.*)|("[^"]*")|'+L+'(des de|fins a|fins que)'+R+'|'+L+'('+KW+')'+R+'|'+L+'('+TY+')'+R+'|((?<=\\) )(?:i|o)(?= ))|(←|≤|≥|≠)|'+L+'(\\d+(?:[.,]\\d+)?)'+R,'gu');
+  var JRE=/(\/\/.*)|("[^"]*")|\b(int|double|new|if|else|while|for|System|Scanner|String|public|static|void|class)\b|(\b\d+(?:\.\d+)?\b)/g;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+  function hl(line){
+    return esc(line).replace(RE,function(m,c,s,mk,k,t,lg,op){
+      var cls=c?'c':s?'s':(mk||k)?'k':t?'t':lg?'l':op?'o':'n';
+      return '<span class="t-'+cls+'">'+m+'</span>';
+    });
+  }
+  function hlj(line){
+    return esc(line).replace(JRE,function(m,c,s,k){
+      var cls=c?'c':s?'s':k?'k':'n';
+      return '<span class="t-'+cls+'">'+m+'</span>';
+    });
+  }
+  function dedent(t){
+    t=t.replace(/^\n+/,'').replace(/\s+$/,'');
+    var ls=t.split('\n');
+    var ind=ls.filter(function(l){return l.trim()}).map(function(l){return l.match(/^ */)[0].length});
+    var m=ind.length?Math.min.apply(null,ind):0;
+    return ls.map(function(l){return l.slice(m)}).join('\n');
+  }
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var java=pre.classList.contains('java');
+    var lines=dedent(pre.textContent).split('\n');
+    pre.innerHTML=lines.map(function(l,i){
+      return '<span class="l" style="--n:'+i+'">'+((java?hlj(l):hl(l))||' ')+'</span>';
+    }).join('');
+  });
+
+  /* ----- slides & navigation ----- */
+  var deck=$('.deck'),slides=[].slice.call(document.querySelectorAll('.slide'));
+  var counter=$('#count'),bar=$('#bar'),ttl=$('#ttl'),toc=$('#toc'),tocCols=$('#tocCols');
+  var PARTS={1:'Part 1: Pensar abans de programar',2:'Part 2: Aplicar-ho',3:'Part 3: Pseudocodi',4:'Part 4: Practiquem'};
+  var PCOL={1:'var(--p1)',2:'var(--p2)',3:'var(--p3)',4:'var(--p4)'};
+  var isDiv=function(s){return s.classList.contains('divider')};
+  var isCover=function(s){return s.classList.contains('cover')};
+  slides.forEach(function(s,i){
+    var hd=s.querySelector('.hd');
+    if(hd&&!isDiv(s)&&!isCover(s)){
+      var p=s.dataset.part;
+      var c=document.createElement('span');c.className='crumb';
+      var label=(i===slides.length-1)?'Tancament':PARTS[p];
+      c.innerHTML='<i></i>'+label;hd.appendChild(c);
+    }
+  });
+  function slideTitle(s){var h=s.querySelector('h1,h2');return h?h.firstChild.textContent.trim():''}
+  var cur=0;
+  function show(n,upd){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('active',k===n)});
+    cur=n;slides[n].scrollTop=0;
+    var s=slides[n];
+    deck.dataset.part=(n===0||n===slides.length-1)?'1':s.dataset.part;
+    counter.textContent=(n+1)+' / '+slides.length;
+    bar.style.width=((n+1)/slides.length*100)+'%';
+    ttl.textContent=slideTitle(s);
+    if(upd!==false){try{history.replaceState(null,'','#'+(n+1))}catch(e){try{location.hash=n+1}catch(_){}}}
+  }
+  function go(d){show(cur+d)}
+  $('#prev').onclick=function(){go(-1)};
+  $('#next').onclick=function(){go(1)};
+
+  /* toc */
+  var groups={};
+  slides.forEach(function(s,i){
+    var g=(i===0||i===slides.length-1)?'0':s.dataset.part;
+    (groups[g]=groups[g]||[]).push(i);
+  });
+  [['0','Inici i tancament'],['1',PARTS[1]],['2',PARTS[2]],['3',PARTS[3]],['4',PARTS[4]]].forEach(function(g){
+    var idx=groups[g[0]];if(!idx)return;
+    var d=document.createElement('div');
+    var h='<h3><i style="background:'+(PCOL[g[0]]||'var(--muted)')+'"></i>'+g[1]+'</h3><ol>';
+    idx.forEach(function(i){h+='<li><button type="button" data-i="'+i+'"><span>'+(i+1)+'</span><span>'+slideTitle(slides[i])+'</span></button></li>'});
+    d.innerHTML=h+'</ol>';tocCols.appendChild(d);
+  });
+  function toggleToc(o){toc.classList.toggle('open',o===undefined?!toc.classList.contains('open'):o)}
+  tocCols.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-i]');if(!b)return;
+    show(+b.dataset.i);toggleToc(false);
+  });
+  $('#btnToc').onclick=function(){toggleToc()};
+
+  /* theme */
+  var root=document.documentElement;
+  function isDark(){
+    var t=root.getAttribute('data-theme');
+    if(t)return t==='dark';
+    return window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function toggleTheme(){
+    var t=isDark()?'light':'dark';root.setAttribute('data-theme',t);
+    try{localStorage.setItem('pc-theme',t)}catch(e){}
+  }
+  try{var st=localStorage.getItem('pc-theme');if(st)root.setAttribute('data-theme',st)}catch(e){}
+  $('#btnTheme').onclick=toggleTheme;
+
+  function fs(){
+    try{
+      if(document.fullscreenElement){document.exitFullscreen()}
+      else if(root.requestFullscreen){root.requestFullscreen()}
+    }catch(e){}
+  }
+  $('#btnFs').onclick=fs;
+
+  document.addEventListener('keydown',function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
+    var inCtl=e.target.closest&&e.target.closest('summary,button,a');
+    switch(e.key){
+      case 'ArrowRight':case 'PageDown':go(1);break;
+      case 'ArrowLeft':case 'PageUp':go(-1);break;
+      case ' ':case 'Enter':if(inCtl)return;go(1);e.preventDefault();break;
+      case 'Home':show(0);break;
+      case 'End':show(slides.length-1);break;
+      case 'o':case 'O':case 'g':case 'G':toggleToc();break;
+      case 't':case 'T':toggleTheme();break;
+      case 'f':case 'F':fs();break;
+      case 'Escape':toggleToc(false);break;
+      default:return;
+    }
+  });
+  var tx=0,ty=0;
+  deck.addEventListener('touchstart',function(e){tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY},{passive:true});
+  deck.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>70&&Math.abs(dy)<50)go(dx<0?1:-1);
+  },{passive:true});
+
+  /* ----- interactive trace ----- */
+  var TL=['Algorisme sumaFins','Var n, i, suma: enter','Inici','  n ← 4','  suma ← 0','  i ← 1','  mentre i ≤ n fer','    suma ← suma + i','    i ← i + 1','  fimentre','  escriure(suma)','Fi'];
+  var S=[];
+  (function(){
+    var n='?',i='?',su='?',out='';
+    function p(l,t){S.push({l:l,n:n,i:i,su:su,out:out,t:t})}
+    n=4;p(3,'Guardem el valor 4 a la variable n.');
+    su=0;p(4,'L’acumulador suma comença a 0.');
+    i=1;p(5,'El comptador i comença a 1.');
+    for(;;){
+      var ok=i<=n;
+      p(6,'Comprovem la condició: '+i+' ≤ '+n+' és '+(ok?'cert, entrem al bucle.':'fals, sortim del bucle.'));
+      if(!ok)break;
+      su+=i;p(7,'suma passa a valer '+su+'.');
+      i++;p(8,'i passa a valer '+i+'. Tornem a la condició.');
+    }
+    out=String(su);p(10,'Mostrem el resultat: '+su+'.');
+  })();
+  var tcode=$('#tcode'),tvars=$('#tvars'),tout=$('#tout'),tnote=$('#tnote');
+  tcode.innerHTML=TL.map(function(l,k){return '<div class="ln" data-l="'+k+'">'+(hl(l)||' ')+'</div>'}).join('');
+  var k=-1;
+  function renderTrace(){
+    var cur=k<0?{l:-1,n:'?',i:'?',su:'?',out:'',t:'Aquest algorisme suma els nombres de 1 a n. Comencem.'}:S[k];
+    var prev=k>0?S[k-1]:{n:'?',i:'?',su:'?'};
+    [].forEach.call(tcode.children,function(d,x){d.classList.toggle('on',x===cur.l)});
+    var rows=[['n',cur.n,prev.n],['i',cur.i,prev.i],['suma',cur.su,prev.su]];
+    tvars.innerHTML=rows.map(function(r){return '<tr'+(k>=0&&r[1]!==r[2]?' class="chg"':'')+'><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>'}).join('');
+    tout.textContent=cur.out===''?'—':cur.out;
+    tnote.textContent=cur.t;
+  }
+  $('#tnext').onclick=function(){if(k<S.length-1){k++;renderTrace()}};
+  $('#tprev').onclick=function(){if(k>-1){k--;renderTrace()}};
+  $('#treset').onclick=function(){k=-1;renderTrace()};
+  renderTrace();
+
+  var start=parseInt((location.hash||'').slice(1),10);
+  show(isNaN(start)?0:start-1,false);
+})();
+</script>
+</body>
+</html>
